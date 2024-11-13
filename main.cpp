@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include "character.h"
 
 #define RESET "\033[0m"
 #define RED "\033[31m" //RED
@@ -12,14 +13,6 @@ std::vector <std::vector<char>> dot_map(100, std::vector<char>(100, '.'));
 std::vector <std::pair<int, int>> arrow_coordinates = {
     {45, 50}, {46, 49}, {46, 51}, {47, 48}, {47, 52}, {48, 47}, {48, 53}, {49, 46}, {49, 54}
 };
-
-void clear_screen(){
-    #ifdef WINDOWS
-        std::system("cls");
-    #else
-        std::system("clear");
-    #endif
-}
 
 void draw_straight_line(int row, int start_column, int end_column, char replace_character){
     if(row, start_column, end_column <= 100 && row, start_column, end_column >= 0){
@@ -118,20 +111,21 @@ std::pair <int, int> handle_user_input(std::string command, std::pair <int, int>
 
 int main(){
 
+    Player_Character player;
     draw_straight_line(50, 45, 56, 'x');
     
     insert_alternative_chars(arrow_coordinates, '^');
     insert_single_char(51, 52, '@');
-    std::pair<int, int> player_location = {51, 52};
-    print_map(dot_map, player_location);
+    //std::pair<int, int> player_location = {51, 52};
+    //print_map(dot_map, Player_Character::player_location);
 
     
     for(;;){
         command = get_input();
-        player_location = handle_user_input(command, player_location);
+        //player_location = handle_user_input(command, player_location);
 
         clear_screen();
-        print_map(dot_map, player_location);
+        //print_map(dot_map, player_location);
         command = "";
     }
 }
