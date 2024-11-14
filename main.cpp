@@ -69,7 +69,7 @@ void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> pla
     return c;
 }
 
-std::pair <int, int> handle_user_input(std::string command, std::pair <int, int> player_location){
+std::pair <int, int> handle_user_move(std::string command, std::pair <int, int> player_location){
     int cmd_length = command.size();
 
     if(cmd_length == 1){
@@ -117,24 +117,42 @@ std::pair <int, int> handle_user_input(std::string command, std::pair <int, int>
 }
 
 int main(){
-
+    int game_active = 1;
     Player_Character player;
+    //draw friendly base
     draw_horizontal_line(44, 40, 61, 'x');
     draw_horizontal_line(50, 40, 50, 'x');
     draw_horizontal_line(50, 51, 61, 'x');
     draw_vertical_line(40, 50, 44, 'x');
     draw_vertical_line(60, 50, 44, 'x');
     
+    //set player start and draw initial map
     insert_single_char(player.player_location.first, player.player_location.second, '@');
     print_map(dot_map, player.player_location);
 
     
     for(;;){
         command = get_input();
-        player.player_location = handle_user_input(command, player.player_location);
+        int cmd_length = command.size();
 
-        clear_screen();
-        print_map(dot_map, player.player_location);
+        if(cmd_length == 1){
+            char char_command = command[0];
+            if(isdigit(char_command)){
+                break;
+            }
+            if(command == "q" || command == "q"){
+                game_active = 0;
+            }
+            else{
+                player.player_location = handle_user_move(command, player.player_location);
+                clear_screen();
+                print_map(dot_map, player.player_location);
+            }
+        }
+
         command = "";
+        if(game_active == 0){
+            break;
+        }
     }
 }
