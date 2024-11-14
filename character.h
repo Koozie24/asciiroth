@@ -22,7 +22,8 @@ class Player_Character{
         std::string player_name;
         std::string player_class;
         std::string player_race;
-        std::pair <int, int> player_location = {51, 52};
+        //y,x
+        std::pair <int, int> player_location = {51, 50};
 
         Player_Character(){
             for(;;){

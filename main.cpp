@@ -3,10 +3,6 @@
 #include <string>
 #include "character.h"
 
-#define RESET "\033[0m"
-#define RED "\033[31m" //RED
-#define GREEN "\033[32m" //GREEN
-
 std::string command = "";
 std::vector <std::vector<char>> dot_map(100, std::vector<char>(100, '.'));
 
@@ -14,10 +10,18 @@ std::vector <std::pair<int, int>> arrow_coordinates = {
     {45, 50}, {46, 49}, {46, 51}, {47, 48}, {47, 52}, {48, 47}, {48, 53}, {49, 46}, {49, 54}
 };
 
-void draw_straight_line(int row, int start_column, int end_column, char replace_character){
+void draw_horizontal_line(int row, int start_column, int end_column, char replace_character){
     if(row, start_column, end_column <= 100 && row, start_column, end_column >= 0){
         for(int i = start_column; i < end_column; i++){
             dot_map[row][i] = replace_character;
+        }
+    }
+}
+
+void draw_vertical_line(int column, int start_row, int end_row, char replace_character){
+    if(column, start_row, end_row <= 100 && column, start_row, end_row >= 0){
+        for(int i = end_row; i < start_row; i++){
+            dot_map[i][column] = replace_character;
         }
     }
 }
@@ -72,18 +76,21 @@ std::pair <int, int> handle_user_input(std::string command, std::pair <int, int>
         switch(command[0]){
             case 'w':
             case 'W':
+                std::cout << player_location.first << " " << player_location.second << std::endl;
                 if(player_location.first - 1 >= 0 && dot_map[player_location.first - 1][player_location.second] == '.'){
                     dot_map[player_location.first][player_location.second] = '.';
                     player_location.first -= 1;
+                    std::cout << player_location.first << " " << player_location.second << std::endl;
                     dot_map[player_location.first][player_location.second] = '@';
                 }
                 break;
             case 's':
             case 'S':
-                    std::cout << player_location.first << std::endl;
+                std::cout << player_location.first << " " << player_location.second << std::endl;
                 if(player_location.first + 1 < 100 && dot_map[player_location.first + 1][player_location.second] == '.'){
                     dot_map[player_location.first][player_location.second] = '.';
                     player_location.first += 1;
+                    std::cout << player_location.first << " " << player_location.second << std::endl;
                     dot_map[player_location.first ][player_location.second] = '@';
                 }
                 break;
@@ -112,20 +119,22 @@ std::pair <int, int> handle_user_input(std::string command, std::pair <int, int>
 int main(){
 
     Player_Character player;
-    draw_straight_line(50, 45, 56, 'x');
+    draw_horizontal_line(44, 40, 61, 'x');
+    draw_horizontal_line(50, 40, 50, 'x');
+    draw_horizontal_line(50, 51, 61, 'x');
+    draw_vertical_line(40, 50, 44, 'x');
+    draw_vertical_line(60, 50, 44, 'x');
     
-    insert_alternative_chars(arrow_coordinates, '^');
-    insert_single_char(51, 52, '@');
-    //std::pair<int, int> player_location = {51, 52};
-    //print_map(dot_map, Player_Character::player_location);
+    insert_single_char(player.player_location.first, player.player_location.second, '@');
+    print_map(dot_map, player.player_location);
 
     
     for(;;){
         command = get_input();
-        //player_location = handle_user_input(command, player_location);
+        player.player_location = handle_user_input(command, player.player_location);
 
         clear_screen();
-        //print_map(dot_map, player_location);
+        print_map(dot_map, player.player_location);
         command = "";
     }
 }
