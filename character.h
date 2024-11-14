@@ -8,9 +8,6 @@
 #define BLUE "\033[34m" //BLUE
 #define MAGENTA "\033[35m" //MAGENTA
 #define CYAN "\033[36m" //CYAN
-#define BRIGHT_RED "\033[91m" // Bright Red
-#define BRIGHT_GREEN "\033[92m" // Bright Green
-
 
 void clear_screen(){
     #ifdef WINDOWS

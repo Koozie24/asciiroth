@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include "character.h"
+#include "npc.h"
 
 std::string command = "";
 std::vector <std::vector<char>> dot_map(100, std::vector<char>(100, '.'));
@@ -36,6 +37,12 @@ void insert_single_char(int y_coord, int x_coord, char new_character){
     dot_map[y_coord][x_coord] = new_character;
 }
 
+void insert_npc(std::vector <Enemy> store_enemy_npc){
+    for(int i=0; i < store_enemy_npc.size(); i++){
+        dot_map[store_enemy_npc[i].npc_position.first][store_enemy_npc[i].npc_position.second] = store_enemy_npc[i].npc_icon;
+    }
+}
+
 /*printer function to show the map*/
 void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> player_location, Player_Character player){
     int min = player_location.first - 10;
@@ -54,6 +61,9 @@ void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> pla
             }
             else if(dot_map[i][j] == '@'){
                 std::cout << player.class_color << dot_map[i][j] << RESET << ' ';
+            }
+            else if(dot_map[i][j] == 'W'){
+                std::cout << BRIGHT_RED << dot_map[i][j] << RESET << ' ';
             }
             else{
                 std::cout << dot_map[i][j] << ' ';
@@ -135,6 +145,8 @@ int main(){
     
     //set player start and draw initial map
     insert_single_char(player.player_location.first, player.player_location.second, '@');
+    initialize_young_wolves();
+    insert_npc(Enemy::enemy_npc_vector);
     print_map(dot_map, player.player_location, player);
 
     

@@ -1,2 +1,2 @@
 all:
-	g++ -o main.o main.cpp character.h
+	g++ -o main.o main.cpp npc.cpp

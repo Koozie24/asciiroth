@@ -1,7 +1,8 @@
 #include <iostream>
-#include <string.h>
 #include <vector>
-#include "character.h"
+
+#define BRIGHT_RED "\033[91m" // Bright Red
+#define BRIGHT_GREEN "\033[92m" // Bright Green
 
 class NPC{
     public: 
@@ -11,23 +12,29 @@ class NPC{
         int unique_id;
         int level;
         int hit_points;
-        int disposition;
-
+        int disposition; //0 friendly 1 is aggressive
+        char npc_icon;
 };
 
 class Enemy: public NPC{
     public:
-        static std::vector<Enemy> store_enemy_npc;
         std::string enemy_color = BRIGHT_RED;
-        
-        Enemy(std::string name, std::pair <int, int> position, int disposition, int level, int unique_id){
-            npc_name = name;
-            disposition = disposition;
-            npc_position = position;
-            level = level;
-            unique_id = unique_id;
-            hit_points = 50 + ((level - 1) * 25);
+        static std::vector<Enemy> enemy_npc_vector;
 
-            store_enemy_npc.push_back(*this);
+        Enemy(std::string name, std::pair <int, int> position, int disposition, int level, int unique_id, char npc_icon){
+            this->npc_name = name;
+            this->disposition = disposition;
+            this->npc_position = position;
+            this->level = level;
+            this->npc_id = unique_id;
+            this->hit_points = 50 + ((level - 1) * 25);
+            this->npc_icon = npc_icon;
+            this->enemy_npc_vector.push_back(*this);
+        }
+
+        char operator<<(const Enemy& other) const{
+            return this->npc_icon;
         }
 };
+
+void initialize_young_wolves();
