@@ -8,6 +8,9 @@
 #define BLUE "\033[34m" //BLUE
 #define MAGENTA "\033[35m" //MAGENTA
 #define CYAN "\033[36m" //CYAN
+#define BRIGHT_RED "\033[91m" // Bright Red
+#define BRIGHT_GREEN "\033[92m" // Bright Green
+
 
 void clear_screen(){
     #ifdef WINDOWS
@@ -21,7 +24,8 @@ class Player_Character{
     public:
         std::string player_name;
         std::string player_class;
-        std::string player_race;
+        int player_level = 1;
+        std::string class_color;
         //y,x
         std::pair <int, int> player_location = {51, 50};
 
@@ -80,22 +84,27 @@ class Player_Character{
                     case 'w':
                     case 'W':
                         player_class = "Warrior";
+                        class_color = RED;
                         break;
                     case 'h':
                     case 'H':
                         player_class = "Hunter";
+                        class_color = GREEN;
                         break; 
                     case 'm':
                     case 'M':
                         player_class = "Mage";
+                        class_color = CYAN;
                         break;
                     case 'r':
                     case 'R':
                         player_class = "Rogue";
+                        class_color = YELLOW;
                         break;
                     case 'p':
                     case 'P':
                         player_class = "Paladin";
+                        class_color = MAGENTA;
                         break;
 
                 }

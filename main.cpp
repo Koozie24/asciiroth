@@ -36,9 +36,10 @@ void insert_single_char(int y_coord, int x_coord, char new_character){
     dot_map[y_coord][x_coord] = new_character;
 }
 
-void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> player_location){
-    int min = player_location.first - 25;
-    int max = player_location.first + 25;
+/*printer function to show the map*/
+void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> player_location, Player_Character player){
+    int min = player_location.first - 10;
+    int max = player_location.first + 10;
     if(min < 0){
         min = 0;
     }
@@ -52,7 +53,7 @@ void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> pla
                 std::cout << RED << dot_map[i][j] << RESET << ' ';
             }
             else if(dot_map[i][j] == '@'){
-                std::cout << GREEN << dot_map[i][j] << RESET << ' ';
+                std::cout << player.class_color << dot_map[i][j] << RESET << ' ';
             }
             else{
                 std::cout << dot_map[i][j] << ' ';
@@ -60,6 +61,11 @@ void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> pla
         }
         std::cout << std::endl;
     }
+    std::cout << std::endl;
+    std::cout << " ________________________________________________________" << std::endl;
+    std::cout << "|              " << player.class_color << player.player_name << " Level " << player.player_level << " " << player.player_class << RESET << std::endl;
+    std::cout << "|              " << BLUE << "Current Location: [" << player.player_location.second << "," << player.player_location.first << "]" << RESET << std::endl;
+    std::cout << "|________________________________________________________" << std::endl;
 }
 
  std::string get_input(){
@@ -69,6 +75,7 @@ void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> pla
     return c;
 }
 
+/*function handles users' movement command. Updates the map if move is legal. returns pair of ints denoting player location*/
 std::pair <int, int> handle_user_move(std::string command, std::pair <int, int> player_location){
     int cmd_length = command.size();
 
@@ -128,7 +135,7 @@ int main(){
     
     //set player start and draw initial map
     insert_single_char(player.player_location.first, player.player_location.second, '@');
-    print_map(dot_map, player.player_location);
+    print_map(dot_map, player.player_location, player);
 
     
     for(;;){
@@ -146,7 +153,7 @@ int main(){
             else{
                 player.player_location = handle_user_move(command, player.player_location);
                 clear_screen();
-                print_map(dot_map, player.player_location);
+                print_map(dot_map, player.player_location, player);
             }
         }
 
