@@ -5,8 +5,8 @@
 #include "npc.h"
 
 std::string command = "";
+std::vector <Enemy> in_range_enemies;
 std::vector <std::vector<char>> dot_map(100, std::vector<char>(100, '.'));
-
 std::vector <std::pair<int, int>> arrow_coordinates = {
     {45, 50}, {46, 49}, {46, 51}, {47, 48}, {47, 52}, {48, 47}, {48, 53}, {49, 46}, {49, 54}
 };
@@ -43,6 +43,24 @@ void insert_npc(std::vector <Enemy> store_enemy_npc){
     }
 }
 
+void check_in_range_npc(std::pair <int, int> player_location, std::vector <Enemy> store_enemy_npc){
+    std::vector <std::pair<int, int>> check_coords = {
+        {player_location.first + 1, player_location.second}, {player_location.first - 1, player_location.second}, {player_location.first, player_location.second + 1}, {player_location.first, player_location.second - 1},
+        {player_location.first + 1, player_location.second + 1}, {player_location.first - 1, player_location.second - 1}, {player_location.first + 1, player_location.second - 1}, {player_location.first - 1, player_location.second + 1}
+    };
+
+    for(const auto& coord : check_coords){
+        if(dot_map[coord.first][coord.second] != '.' && dot_map[coord.first][coord.second] != 'x'){
+            char in_range = dot_map[coord.first][coord.second];
+            for(int i=0; i < store_enemy_npc.size(); i++){
+                if(store_enemy_npc[i].npc_position == coord){
+                    in_range_enemies.push_back(store_enemy_npc[i]);
+                }
+            }
+        }
+    }
+}
+
 /*printer function to show the map*/
 void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> player_location, Player_Character player){
     int min = player_location.first - 10;
@@ -76,6 +94,12 @@ void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> pla
     std::cout << "|              " << player.class_color << player.player_name << " Level " << player.player_level << " " << player.player_class << RESET << std::endl;
     std::cout << "|              " << BLUE << "Current Location: [" << player.player_location.second << "," << player.player_location.first << "]" << RESET << std::endl;
     std::cout << "|________________________________________________________" << std::endl;
+
+    std::cout << "You are in range of the following creatures: ";
+
+    for(int i=0; i < in_range_enemies.size(); i++){
+        std::cout << in_range_enemies[i].npc_name << std::endl;
+    }
 }
 
  std::string get_input(){
@@ -93,21 +117,17 @@ std::pair <int, int> handle_user_move(std::string command, std::pair <int, int> 
         switch(command[0]){
             case 'w':
             case 'W':
-                std::cout << player_location.first << " " << player_location.second << std::endl;
                 if(player_location.first - 1 >= 0 && dot_map[player_location.first - 1][player_location.second] == '.'){
                     dot_map[player_location.first][player_location.second] = '.';
                     player_location.first -= 1;
-                    std::cout << player_location.first << " " << player_location.second << std::endl;
                     dot_map[player_location.first][player_location.second] = '@';
                 }
                 break;
             case 's':
             case 'S':
-                std::cout << player_location.first << " " << player_location.second << std::endl;
                 if(player_location.first + 1 < 100 && dot_map[player_location.first + 1][player_location.second] == '.'){
                     dot_map[player_location.first][player_location.second] = '.';
                     player_location.first += 1;
-                    std::cout << player_location.first << " " << player_location.second << std::endl;
                     dot_map[player_location.first ][player_location.second] = '@';
                 }
                 break;
@@ -154,17 +174,26 @@ int main(){
         command = get_input();
         int cmd_length = command.size();
 
+        //parse input command
         if(cmd_length == 1){
             char char_command = command[0];
-            if(isdigit(char_command)){
+            if(isdigit(char_command)){ //targeting command?
                 break;
             }
+            //quit game
             if(command == "q" || command == "q"){
                 game_active = 0;
             }
-            else{
+            else{ //handle movement and display in range npc's
+                std::pair temp_loc = player.player_location;
                 player.player_location = handle_user_move(command, player.player_location);
                 clear_screen();
+
+                //check if player has moved to trigger range check
+                if(temp_loc.first != player.player_location.first || temp_loc.second != player.player_location.second){
+                    check_in_range_npc(player.player_location, Enemy::enemy_npc_vector);
+                }
+
                 print_map(dot_map, player.player_location, player);
             }
         }
