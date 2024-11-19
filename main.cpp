@@ -166,7 +166,7 @@ int check_npc_is_in_range(int index_to_check){
     return check_flag;
 }
 
-void display_enemy_target_interaction(int in_range_index){
+void display_combat_interaction(int in_range_index){
     //clear_screen();
     std::cout << "You are in combat! Win or die." << std::endl;
     std::cout << "-----------------------------------" << std::endl;
@@ -176,7 +176,7 @@ void display_enemy_target_interaction(int in_range_index){
 
 int main(){
     int game_active = 1;
-    Player_Character player;
+    Player_Character* player = create_player();
     //draw friendly base
     draw_horizontal_line(44, 40, 61, 'x');
     draw_horizontal_line(50, 40, 50, 'x');
@@ -185,10 +185,10 @@ int main(){
     draw_vertical_line(60, 50, 44, 'x');
     
     //set player start and draw initial map
-    insert_single_char(player.player_location.first, player.player_location.second, '@');
+    insert_single_char(player->player_location.first, player->player_location.second, '@');
     initialize_young_wolves();
     insert_npc(Enemy::enemy_npc_vector);
-    print_map(dot_map, player.player_location, player);
+    print_map(dot_map, player->player_location, *player);
 
     
     for(;;){
@@ -216,7 +216,7 @@ int main(){
                             int in_combat = 1;
                             for(;;){
                                 command = "";
-                                display_enemy_target_interaction(in_range_index);
+                                display_combat_interaction(in_range_index);
                                 command = get_input();
 
                                 if(in_combat == 0){
@@ -232,16 +232,16 @@ int main(){
                 game_active = 0;
             }
             else{ //handle movement and display in range npc's
-                std::pair temp_loc = player.player_location;
-                player.player_location = handle_user_move(command, player.player_location);
+                std::pair temp_loc = player->player_location;
+                player->player_location = handle_user_move(command, player->player_location);
                 clear_screen();
 
                 //check if player has moved to trigger range check
-                if(temp_loc.first != player.player_location.first || temp_loc.second != player.player_location.second){
-                    check_in_range_npc(player.player_location, Enemy::enemy_npc_vector);
+                if(temp_loc.first != player->player_location.first || temp_loc.second != player->player_location.second){
+                    check_in_range_npc(player->player_location, Enemy::enemy_npc_vector);
                 }
 
-                print_map(dot_map, player.player_location, player);
+                print_map(dot_map, player->player_location, *player);
             }
         }
 
