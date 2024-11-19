@@ -32,9 +32,13 @@ class Enemy: public NPC{
             this->enemy_npc_vector.push_back(*this);
         }
 
-        char operator<<(const Enemy& other) const{
-            return this->npc_icon;
-        }
+        //char operator<<(const Enemy& other) const{
+        //    return this->npc_icon;
+        //}
+        int get_level() const {return level;}
+        char get_icon() const {return npc_icon;}
+        std::string get_name() const {return npc_name;}
+
 };
 
 void initialize_young_wolves();

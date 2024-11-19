@@ -49,6 +49,9 @@ void check_in_range_npc(std::pair <int, int> player_location, std::vector <Enemy
         {player_location.first + 1, player_location.second + 1}, {player_location.first - 1, player_location.second - 1}, {player_location.first + 1, player_location.second - 1}, {player_location.first - 1, player_location.second + 1}
     };
 
+    //empty in range before new check
+    in_range_enemies.clear();
+
     for(const auto& coord : check_coords){
         if(dot_map[coord.first][coord.second] != '.' && dot_map[coord.first][coord.second] != 'x'){
             char in_range = dot_map[coord.first][coord.second];
@@ -98,8 +101,9 @@ void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> pla
     std::cout << "You are in range of the following creatures: ";
 
     for(int i=0; i < in_range_enemies.size(); i++){
-        std::cout << in_range_enemies[i].npc_name << std::endl;
+        std::cout << i << ": " << in_range_enemies[i].npc_name;
     }
+    std::cout << std::endl;
 }
 
  std::string get_input(){
@@ -153,6 +157,23 @@ std::pair <int, int> handle_user_move(std::string command, std::pair <int, int> 
     return player_location;
 }
 
+int check_npc_is_in_range(int index_to_check){
+    int check_flag = 0;
+    if(index_to_check <= in_range_enemies.size()){
+        check_flag = 1;
+    }
+    
+    return check_flag;
+}
+
+void display_enemy_target_interaction(int in_range_index){
+    //clear_screen();
+    std::cout << "You are in combat! Win or die." << std::endl;
+    std::cout << "-----------------------------------" << std::endl;
+    std::cout << "You are currently fighting: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() << std::endl;
+    std::cout << "                              HP: " << in_range_enemies[in_range_index].hit_points << std::endl;
+}
+
 int main(){
     int game_active = 1;
     Player_Character player;
@@ -177,8 +198,34 @@ int main(){
         //parse input command
         if(cmd_length == 1){
             char char_command = command[0];
-            if(isdigit(char_command)){ //targeting command?
-                break;
+            if(isdigit(char_command)){ //targeting command
+                int in_range_index = char_command - '0';
+                
+                int check_target_in_range = check_npc_is_in_range(in_range_index);
+                //check in range
+                if(check_target_in_range == 1){
+                    //get npc disposition & id
+                    int target_dispostion = in_range_enemies[in_range_index].disposition;
+                    int target_id = in_range_enemies[in_range_index].npc_id;
+                    //std::cout << "this is my disp" << target_dispostion << std::endl;
+                    switch(target_dispostion){
+                        //friendly
+                        case(0):
+                        //enemy
+                        case(1):
+                            int in_combat = 1;
+                            for(;;){
+                                command = "";
+                                display_enemy_target_interaction(in_range_index);
+                                command = get_input();
+
+                                if(in_combat == 0){
+                                    break;
+                                }
+                            }
+
+                    }
+                }   
             }
             //quit game
             if(command == "q" || command == "q"){
