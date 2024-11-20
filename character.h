@@ -8,6 +8,8 @@
 #define BLUE "\033[34m" //BLUE
 #define MAGENTA "\033[35m" //MAGENTA
 #define CYAN "\033[36m" //CYAN
+#define BOLD "\033[1m"  // Bold text
+
 
 void clear_screen(){
     #ifdef WINDOWS
@@ -23,13 +25,22 @@ class Player_Character{
         std::string player_class;
         int player_level = 1;
         std::string class_color;
-        struct players_stats {
-            int stamina = 5;
-            int strength = 5;
-            int intellect  = 5;
-        };
+        int stamina = 5;
+        int strength = 5;
+        int intellect  = 5;
+        int hit_points = (stamina * 10) + (50 * player_level);
+        std::vector <std::string> class_abilities;
         //y,x
         std::pair <int, int> player_location = {51, 50};
+        
+        virtual int primary_ability(){
+            return 0;
+        }
+        virtual int self_healing(){
+            return 0;
+        }
+        //virtual deconstructor for polymorphic class type
+        virtual ~Player_Character(){}
 
         Player_Character(){
             for(;;){
@@ -74,18 +85,21 @@ class Player_Character{
 
 class Warrior : public Player_Character{
     public:
-        struct first_ability{
-            std::string string_name = "Heroic Strike";
-            int base_damage;
-
-            first_ability(Warrior& warrior){
-                base_damage = warrior.player_level * rand() % 10 + 15;
-            }
-        };
-
         Warrior(){
             player_class = "Warrior";
             class_color = RED;
+            class_abilities =  {"Heroic Strike", "Bandage"};
+        }
+
+        int primary_ability() override{
+            int base_damage = player_level * ((rand() % 10) + 15);
+
+            return base_damage;
+        }
+        int self_healing() override{
+            int bandage_heal = (hit_points / 10);
+
+            return bandage_heal;
         }
 };
 
@@ -128,10 +142,11 @@ Player_Character* create_player(){
 
         if(class_char == 'H' || class_char == 'R' || class_char == 'M' || class_char == 'P' || class_char == 'W'){
             clear_screen();
-            //std::cout << "Hmm, I'm not sure that I would guess you have what is takes to be a " << player_class << ", " << player_name << ", but we will see what the trainers can make of you yet. Off with you now, scum and go seek out Marshall McBride! You will find him due north just a little ways." << std::endl;
             break;
         }
 
         clear_screen();
     }
+
+    return player;
 }

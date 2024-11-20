@@ -65,7 +65,7 @@ void check_in_range_npc(std::pair <int, int> player_location, std::vector <Enemy
 }
 
 /*printer function to show the map*/
-void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> player_location, Player_Character player){
+void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> player_location, Player_Character& player){
     int min = player_location.first - 10;
     int max = player_location.first + 10;
     if(min < 0){
@@ -166,12 +166,59 @@ int check_npc_is_in_range(int index_to_check){
     return check_flag;
 }
 
-void display_combat_interaction(int in_range_index){
-    //clear_screen();
-    std::cout << "You are in combat! Win or die." << std::endl;
-    std::cout << "-----------------------------------" << std::endl;
-    std::cout << "You are currently fighting: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() << std::endl;
-    std::cout << "                              HP: " << in_range_enemies[in_range_index].hit_points << std::endl;
+void display_combat_interaction(int in_range_index, Player_Character& player, std::pair<int, std::string> previous = {-1, "null"}){
+    clear_screen();
+    int count = 0;
+    std::string enemy_name = in_range_enemies[in_range_index].get_name();
+    for(char c : enemy_name){
+        count++;
+    }
+
+    std::cout << BOLD << BRIGHT_RED << "You are in combat! Win or die." << RESET << std::endl;
+    std::cout << "------------------------------------------------" << std::endl;
+    std::cout << "Target: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() <<  std::string(count, '\0') << "| You dealt " << previous.first << " damage with " << previous.second <<  std::endl;
+    std::cout << "HP: " << BRIGHT_RED <<  in_range_enemies[in_range_index].hit_points << RESET << std::endl;
+    std::cout << "------------------------------------------------" << std::endl;
+    std::cout <<player.class_color << player.player_name << "'s HP: " << RESET << BRIGHT_GREEN << player.hit_points << RESET << std::endl;
+
+}
+
+std::pair <int, std::string> handle_player_attack_inputs(std::string command, Player_Character& player, int in_range_index){
+    int c = command[0] - '0';
+    std::pair <int, std::string> combat_log;
+    std::string ability_name;
+    int amount_healed, damage_dealt_to_npc;
+
+    switch(c){
+        case(2):
+            amount_healed = player.self_healing();
+
+            player.hit_points += amount_healed;
+            ability_name = player.class_abilities[1];
+            combat_log = {amount_healed, ability_name};
+            break;
+        case(1):
+            damage_dealt_to_npc = player.primary_ability();
+            ability_name = player.class_abilities[0];
+            in_range_enemies[in_range_index].hit_points -= damage_dealt_to_npc;
+
+            player.hit_points -= in_range_enemies[in_range_index].get_damage();
+            std::cout << in_range_enemies[in_range_index].get_damage() << std::endl;
+            //std::cin >> damage_dealt_to_npc;
+            combat_log = {damage_dealt_to_npc, ability_name};
+            break;
+    }
+
+    //checking for player/npc death. -2 code indicates dead string indicates who
+    if(player.hit_points <= 0){
+        combat_log.first = -2;
+        combat_log.second = "player";
+    }
+    if(in_range_enemies[in_range_index].hit_points <= 0){
+        combat_log.first = -2;
+        combat_log.second = "npc";
+    }
+    return combat_log;
 }
 
 int main(){
@@ -207,18 +254,36 @@ int main(){
                     //get npc disposition & id
                     int target_dispostion = in_range_enemies[in_range_index].disposition;
                     int target_id = in_range_enemies[in_range_index].npc_id;
-                    //std::cout << "this is my disp" << target_dispostion << std::endl;
                     switch(target_dispostion){
                         //friendly
                         case(0):
                         //enemy
                         case(1):
                             int in_combat = 1;
+                            int turn = 0;
+                            std::pair <int, std::string> previous_turn_results;
+
                             for(;;){
                                 command = "";
-                                display_combat_interaction(in_range_index);
-                                command = get_input();
-
+                                //first turn before 
+                                if(turn == 0){
+                                    display_combat_interaction(in_range_index, *player);
+                                    command = get_input();
+                                    turn++;
+                                    previous_turn_results = handle_player_attack_inputs(command, *player, in_range_index);
+                                    display_combat_interaction(in_range_index, *player);
+                                }
+                                else{
+                                    command = get_input();
+                                    previous_turn_results = handle_player_attack_inputs(command, *player, in_range_index);
+                                    turn++;
+                                    display_combat_interaction(in_range_index, *player, previous_turn_results);
+                                }   
+                                
+                                //check for a kill
+                                if(previous_turn_results.first == -2){
+                                    in_combat = 0;
+                                }
                                 if(in_combat == 0){
                                     break;
                                 }
@@ -226,6 +291,10 @@ int main(){
 
                     }
                 }   
+            }
+            //bandage/heal
+            if(command == "h"){
+
             }
             //quit game
             if(command == "q" || command == "q"){
@@ -244,6 +313,7 @@ int main(){
                 print_map(dot_map, player->player_location, *player);
             }
         }
+
 
         command = "";
         if(game_active == 0){

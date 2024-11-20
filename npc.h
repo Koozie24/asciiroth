@@ -14,6 +14,7 @@ class NPC{
         int hit_points;
         int disposition; //0 friendly 1 is aggressive
         char npc_icon;
+        int damage;
 };
 
 class Enemy: public NPC{
@@ -29,7 +30,9 @@ class Enemy: public NPC{
             this->npc_id = unique_id;
             this->hit_points = 50 + ((level - 1) * 25);
             this->npc_icon = npc_icon;
+            this->damage = level * ((rand() % 1) + 5);
             this->enemy_npc_vector.push_back(*this);
+
         }
 
         //char operator<<(const Enemy& other) const{
@@ -38,6 +41,9 @@ class Enemy: public NPC{
         int get_level() const {return level;}
         char get_icon() const {return npc_icon;}
         std::string get_name() const {return npc_name;}
+        int get_damage() const {return damage;}
+        int get_disposition() const {return disposition;}
+        int get_id() const {return npc_id;}
 
 };
 
