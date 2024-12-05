@@ -94,7 +94,7 @@ void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> pla
     }
     std::cout << std::endl;
     std::cout << " ________________________________________________________" << std::endl;
-    std::cout << "|              " << player.class_color << player.player_name << " Level " << player.player_level << " " << player.player_class << RESET << BOLD << MAGENTA << " XP:" << player.experience_points << "/100 " << RESET << GREEN << "HP: " << player.hit_points << RESET << std::endl;
+    std::cout << "|              " << player.class_color << player.player_name << " Level " << player.player_level << " " << player.player_class << RESET << BOLD << MAGENTA << " XP: " << player.experience_points << "/"<< player.xp_per_level[player.player_level - 1].second << RESET << GREEN << " HP: " << player.hit_points << RESET << std::endl;
     std::cout << "|              " << BLUE << "Current Location: [" << player.player_location.second << "," << player.player_location.first << "]" << RESET << std::endl;
     std::cout << "|________________________________________________________" << std::endl;
 
@@ -240,6 +240,16 @@ void handle_npc_kill(Player_Character& player, int enemy_npc_id){
     }
 }
 
+void player_xp_check(Player_Character& player){
+    int current_level = player.player_level;
+    int current_xp = player.experience_points;
+    int required_xp = player.xp_per_level[current_level - 1].second;
+    if(current_xp >= required_xp){
+        player.player_level += 1;
+        player.experience_points = current_xp - required_xp;
+    }
+}
+
 int main(){
     int game_active = 1;
     Player_Character* player = create_player();
@@ -351,6 +361,7 @@ int main(){
         }
 
         
+        player_xp_check(*player);
 
         command = "";
         if(game_active == 0){

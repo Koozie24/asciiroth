@@ -32,6 +32,8 @@ class Player_Character{
         int max_hp = (stamina * 10) + (50 * player_level);;
         int experience_points = 0;
         std::vector <std::string> class_abilities;
+
+        std::vector <std::pair<int,int>> xp_per_level = {{1, 250}, {2, 650}, {3, 1265}, {4, 2085}, {5, 3240}};
         //y,x
         std::pair <int, int> player_location = {51, 50};
         
