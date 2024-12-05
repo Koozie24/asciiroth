@@ -94,7 +94,7 @@ void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> pla
     }
     std::cout << std::endl;
     std::cout << " ________________________________________________________" << std::endl;
-    std::cout << "|              " << player.class_color << player.player_name << " Level " << player.player_level << " " << player.player_class << RESET << BOLD << MAGENTA << " XP:" << player.experience_points << "/100 " << std::endl;
+    std::cout << "|              " << player.class_color << player.player_name << " Level " << player.player_level << " " << player.player_class << RESET << BOLD << MAGENTA << " XP:" << player.experience_points << "/100 " << RESET << GREEN << "HP: " << player.hit_points << RESET << std::endl;
     std::cout << "|              " << BLUE << "Current Location: [" << player.player_location.second << "," << player.player_location.first << "]" << RESET << std::endl;
     std::cout << "|________________________________________________________" << std::endl;
 
@@ -304,20 +304,34 @@ int main(){
                                 in_combat = previous_turn_results.first == -2 ? 0 : 1;
 
                                 if(in_combat == 0){
-                                    handle_npc_kill(*player, target_id);
+                                    if(in_range_enemies[in_range_index].hit_points <= 0){
+                                        handle_npc_kill(*player, target_id);
+                                    }
+                                    if(player->hit_points <= 0){
+                                        std::cout << RED << "You have been slain by " << in_range_enemies[in_range_index].get_name() << ". Your character made it to level " << player->player_level << std::endl;
+                                        game_active = 0;
+                                    }
                                     command = "";
-                                    //std::cout << player->experience_points << std::endl;
-                                    //std::cin >> command;
                                     break;
                                 }
                             }
                     }
                 }   
             }
+
             //bandage/heal
             if(command == "h"){
+                int amount_healed = player->self_healing();
+                int current_hp = player->hit_points;
 
+                if(amount_healed + current_hp > player->max_hp){
+                    player->hit_points == player->max_hp;
+                }
+                else{
+                    player->hit_points += amount_healed;
+                }
             }
+
             //quit game
             if(command == "q" || command == "q"){
                 game_active = 0;
@@ -336,9 +350,7 @@ int main(){
             }
         }
 
-        if(player->experience_points){
-            
-        }
+        
 
         command = "";
         if(game_active == 0){
