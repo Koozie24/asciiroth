@@ -78,7 +78,7 @@ void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> pla
     for(int i = min; i < max; i++){
         for(int j = 0; j < dot_map[i].size(); j++){
             if(dot_map[i][j] == 'x' || dot_map[i][j] == '^'){
-                std::cout << RED << dot_map[i][j] << RESET << ' ';
+                std::cout << dot_map[i][j] << ' ';
             }
             else if(dot_map[i][j] == '@'){
                 std::cout << player.class_color << dot_map[i][j] << RESET << ' ';
@@ -163,6 +163,22 @@ int check_npc_is_in_range(int index_to_check){
     return check_flag;
 }
 
+std::pair <int, std::string> player_heal(Player_Character& player){
+    int amount_healed = player.self_healing() * 2;
+    int current_hp = player.hit_points;
+    std::string ability_name = player.class_abilities[1];
+    std::pair <int, std::string> combat_log = {amount_healed, ability_name};
+
+    if(amount_healed + current_hp > player.max_hp){
+        player.hit_points == player.max_hp;
+    }
+    else{
+        player.hit_points += amount_healed;
+    }
+
+    return combat_log;
+}
+
 void display_combat_interaction(int in_range_index, Player_Character& player, std::pair<int, std::string> previous = {-1, "null"}, int turn = 1){
     clear_screen();
     int count = 0;
@@ -181,10 +197,20 @@ void display_combat_interaction(int in_range_index, Player_Character& player, st
     else{
         std::cout << BOLD << BRIGHT_RED << "You are in combat! Win or die." << RESET << std::endl;
         std::cout << "------------------------------------------------" << std::endl;
-        std::cout << "Target: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() <<  std::string(count, '\0') << "| You dealt " << previous.first << " damage with " << previous.second <<  std::endl;
+        if(previous.second == "Bandage"){
+            std::cout << "Target: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() <<  std::string(count, '\0') << "| You healed " << previous.first << " hit points with " << previous.second <<  std::endl;
+        }
+        else{
+            std::cout << "Target: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() <<  std::string(count, '\0') << "| You dealt " << previous.first << " damage with " << previous.second <<  std::endl;
+        }
         std::cout << "HP: " << BRIGHT_RED <<  in_range_enemies[in_range_index].hit_points << RESET << std::endl;
         std::cout << "------------------------------------------------" << std::endl;
-        std::cout <<player.class_color << player.player_name << "'s HP: " << RESET << BRIGHT_GREEN << player.hit_points << RESET << std::endl;
+        if(previous.second == "Bandage"){
+            std::cout <<player.class_color << player.player_name << "'s HP: " << RESET << BRIGHT_GREEN << player.hit_points << RESET << "| You healed " << previous.first << " hit points with " << previous.second << std::endl;
+        }
+        else{
+            std::cout <<player.class_color << player.player_name << "'s HP: " << RESET << BRIGHT_GREEN << player.hit_points << RESET << "| You dealt " << previous.first << " damage with " << previous.second << std::endl;
+        }
     }
 }
 
@@ -196,11 +222,14 @@ std::pair <int, std::string> handle_player_attack_inputs(std::string command, Pl
 
     switch(c){
         case(2):
-            amount_healed = player.self_healing();
+            //amount_healed = player.self_healing();
 
-            player.hit_points += amount_healed;
-            ability_name = player.class_abilities[1];
-            combat_log = {amount_healed, ability_name};
+            //player.hit_points += amount_healed;
+            //ability_name = player.class_abilities[1];
+            //combat_log = {amount_healed, ability_name};
+
+            combat_log = player_heal(player);
+            player.hit_points -= in_range_enemies[in_range_index].get_damage();
             break;
         case(1):
             damage_dealt_to_npc = player.primary_ability();
@@ -301,7 +330,7 @@ int main(){
                                     command = get_input();
                                     turn++;
                                     previous_turn_results = handle_player_attack_inputs(command, *player, in_range_index);
-                                    display_combat_interaction(in_range_index, *player);
+                                    display_combat_interaction(in_range_index, *player, previous_turn_results);
                                 }
                                 else{
                                     command = get_input();
@@ -331,15 +360,7 @@ int main(){
 
             //bandage/heal
             if(command == "h"){
-                int amount_healed = player->self_healing();
-                int current_hp = player->hit_points;
-
-                if(amount_healed + current_hp > player->max_hp){
-                    player->hit_points == player->max_hp;
-                }
-                else{
-                    player->hit_points += amount_healed;
-                }
+                std::pair <int, std::string> combat_log = player_heal(*player);
             }
 
             //quit game
