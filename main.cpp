@@ -172,7 +172,7 @@ int check_npc_is_in_range(int index_to_check){
 
 /*Function handles player self healing and returns a pair of int and string indicating healing amount and ability name*/
 std::pair <int, std::string> player_heal(Player_Character& player){
-    int amount_healed = player.self_healing() * 2;
+    int amount_healed = player.self_healing() * 3;
     int current_hp = player.hit_points;
     std::string ability_name = player.class_abilities[1];
     std::pair <int, std::string> combat_log = {amount_healed, ability_name};
@@ -207,13 +207,13 @@ void display_combat_interaction(int in_range_index, Player_Character& player, st
     else{
         std::cout << BOLD << BRIGHT_RED << "You are in combat! Win or die." << RESET << std::endl;
         std::cout << "------------------------------------------------" << std::endl;
-        if(previous.first.second == "Bandage"){
-            std::cout << "Target: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() <<  std::string(count, '\0') << "| Dealt " << previous.second.first << " point of damage to your hit points" << std::endl; // << previous.first.second <<  std::endl;
-        }
-        else{
+        //if(previous.first.second == "Bandage"){
+            //std::cout << "Target: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() <<  std::string(count, '\0') << "| Dealt " << previous.second.first << " point of damage to your hit points" << std::endl; // << previous.first.second <<  std::endl;
+        //}
+        //else{
             //std::cout << "Target: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() <<  std::string(count, '\0') << "| You dealt " << previous.first.first << " damage with " << previous.first.second <<  std::endl;
-            std::cout << "Target: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() <<  std::string(count, '\0') << "| Dealt " << previous.second.first << " point of damage to your hit points" << std::endl;
-        }
+        std::cout << "Target: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() <<  std::string(count, '\0') << "| Dealt " << previous.second.first << " point of damage to your hit points" << std::endl;
+        //}
         std::cout << "HP: " << BRIGHT_RED <<  in_range_enemies[in_range_index].hit_points << RESET << std::endl;
         std::cout << "------------------------------------------------" << std::endl;
         if(previous.first.second == "Bandage"){
@@ -227,7 +227,7 @@ void display_combat_interaction(int in_range_index, Player_Character& player, st
 
 /*Function performs the combat interactions and adjust player/npc health. inputs a -2 value if player or npc is killed. returns a pair of pairs indicating damage done or gained to player and npc*/
 std::pair <std::pair<int, std::string>, std::pair<int, std::string>> handle_player_attack_inputs(std::string command, Player_Character& player, int in_range_index){
-    int c = command[0] - '0';
+    int c = command[0] - '0'; //get integer from single char input
     //first pair is player, second pair is npc
     std::pair <std::pair<int, std::string>, std::pair<int, std::string>> combat_log;
     std::pair <int, std::string> temp_player_log;
@@ -239,7 +239,7 @@ std::pair <std::pair<int, std::string>, std::pair<int, std::string>> handle_play
         case(2):
             temp_player_log = player_heal(player); //temporary pair to store heal amount and spell name
             combat_log.first.first = temp_player_log.first;
-            combat_log.first.second = temp_player_log.first; //add heal and name to combatlog
+            combat_log.first.second = temp_player_log.second; //add heal and name to combatlog
             dmg_to_player = in_range_enemies[in_range_index].get_damage(); //getting dmg from npc
             player.hit_points -= dmg_to_player; //update player hp
             combat_log.second.first = dmg_to_player;

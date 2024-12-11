@@ -101,7 +101,7 @@ class Warrior : public Player_Character{
             return base_damage;
         }
         int self_healing() override{
-            int bandage_heal = (hit_points / 10);
+            int bandage_heal = (max_hp / 10);
 
             return bandage_heal;
         }
