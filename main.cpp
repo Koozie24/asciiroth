@@ -207,13 +207,7 @@ void display_combat_interaction(int in_range_index, Player_Character& player, st
     else{
         std::cout << BOLD << BRIGHT_RED << "You are in combat! Win or die." << RESET << std::endl;
         std::cout << "------------------------------------------------" << std::endl;
-        //if(previous.first.second == "Bandage"){
-            //std::cout << "Target: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() <<  std::string(count, '\0') << "| Dealt " << previous.second.first << " point of damage to your hit points" << std::endl; // << previous.first.second <<  std::endl;
-        //}
-        //else{
-            //std::cout << "Target: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() <<  std::string(count, '\0') << "| You dealt " << previous.first.first << " damage with " << previous.first.second <<  std::endl;
         std::cout << "Target: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() <<  std::string(count, '\0') << "| Dealt " << previous.second.first << " point of damage to your hit points" << std::endl;
-        //}
         std::cout << "HP: " << BRIGHT_RED <<  in_range_enemies[in_range_index].hit_points << RESET << std::endl;
         std::cout << "------------------------------------------------" << std::endl;
         if(previous.first.second == "Bandage"){
