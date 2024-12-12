@@ -231,18 +231,13 @@ std::pair <std::pair<int, std::string>, std::pair<int, std::string>> handle_play
     switch(c){
         //class specific heal
         case(2):
-            std::cout << "This is current (before heal) player HP: " << player.hit_points << std::endl;
             temp_player_log = player_heal(player); //temporary pair to store heal amount and spell name
             combat_log.first.first = temp_player_log.first;
             combat_log.first.second = temp_player_log.second; //add heal and name to combatlog
-            std::cout << "This is current (after heal) player HP: " << player.hit_points << std::endl;
             dmg_to_player = in_range_enemies[in_range_index].get_damage(); //getting dmg from npc
             player.hit_points -= dmg_to_player; //update player hp
-            std::cout << "This is current (after attack) player HP: " << player.hit_points << std::endl;
             combat_log.second.first = dmg_to_player;
             combat_log.second.second = in_range_enemies[in_range_index].get_name(); //add dmg and npc name to combatlog
-            char l;
-            std::cin >> l;
             break;
         //base damage ability 
         case(1):
