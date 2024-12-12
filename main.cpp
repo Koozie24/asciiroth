@@ -164,7 +164,7 @@ std::pair <int, int> handle_user_move(std::string command, std::pair <int, int> 
 
 int check_npc_is_in_range(int index_to_check){
     int check_flag = 0;
-    if(index_to_check <= in_range_enemies.size()){
+    if(index_to_check <= in_range_enemies.size() && in_range_enemies.size() != 0){
         check_flag = 1;
     }
     return check_flag;
@@ -177,8 +177,8 @@ std::pair <int, std::string> player_heal(Player_Character& player){
     std::string ability_name = player.class_abilities[1];
     std::pair <int, std::string> combat_log = {amount_healed, ability_name};
 
-    if(amount_healed + current_hp > player.max_hp){
-        player.hit_points == player.max_hp;
+    if((amount_healed + current_hp) >= player.max_hp){ //ensures cant heal past max_hp
+        player.hit_points = player.max_hp;
     }
     else{
         player.hit_points += amount_healed;
@@ -231,13 +231,18 @@ std::pair <std::pair<int, std::string>, std::pair<int, std::string>> handle_play
     switch(c){
         //class specific heal
         case(2):
+            std::cout << "This is current (before heal) player HP: " << player.hit_points << std::endl;
             temp_player_log = player_heal(player); //temporary pair to store heal amount and spell name
             combat_log.first.first = temp_player_log.first;
             combat_log.first.second = temp_player_log.second; //add heal and name to combatlog
+            std::cout << "This is current (after heal) player HP: " << player.hit_points << std::endl;
             dmg_to_player = in_range_enemies[in_range_index].get_damage(); //getting dmg from npc
             player.hit_points -= dmg_to_player; //update player hp
+            std::cout << "This is current (after attack) player HP: " << player.hit_points << std::endl;
             combat_log.second.first = dmg_to_player;
             combat_log.second.second = in_range_enemies[in_range_index].get_name(); //add dmg and npc name to combatlog
+            char l;
+            std::cin >> l;
             break;
         //base damage ability 
         case(1):
@@ -287,7 +292,13 @@ void player_xp_check(Player_Character& player){
     int required_xp = player.xp_per_level[current_level - 1].second;
     if(current_xp >= required_xp){
         player.player_level += 1;
+        player.stamina += 1;
+        player.strength += 1;
+        player.intellect += 1;
+        player.max_hp = (player.stamina * 10) + (50 * player.player_level);
+        player.hit_points = player.max_hp;
         player.experience_points = current_xp - required_xp;
+        //player.add_ability()
     }
 }
 
@@ -371,7 +382,7 @@ int main(){
                                 }
                             }
                     }
-                }   
+                } 
             }
 
             //bandage/heal

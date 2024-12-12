@@ -29,7 +29,7 @@ class Player_Character{
         int strength = 5;
         int intellect  = 5;
         int hit_points = (stamina * 10) + (50 * player_level);
-        int max_hp = (stamina * 10) + (50 * player_level);;
+        int max_hp = (stamina * 10) + (50 * player_level);
         int experience_points = 0;
         std::vector <std::string> class_abilities;
 
