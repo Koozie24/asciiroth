@@ -3,6 +3,8 @@
 #include <string>
 #include "character.h"
 #include "npc.h"
+#include <optional>
+#include <algorithm>
 
 std::string command = "";
 std::vector <Enemy> in_range_enemies;
@@ -40,14 +42,14 @@ void insert_single_char(int y_coord, int x_coord, char new_character){
 }
 
 /*function inserts npcs into map after initialization*/
-void insert_npc(std::vector <Enemy> store_enemy_npc){
-    for(int i=0; i < store_enemy_npc.size(); i++){
-        dot_map[store_enemy_npc[i].npc_position.first][store_enemy_npc[i].npc_position.second] = store_enemy_npc[i].npc_icon;
+void insert_npc(std::vector <Enemy>& store_enemy_npc){
+    for(const auto& enemy : store_enemy_npc){
+        dot_map[enemy.npc_position.first][enemy.npc_position.second] = enemy.npc_icon;
     }
 }
 
 /*Function check adjacent coordinates for npc's in targeting range of the player*/
-void check_in_range_npc(std::pair <int, int> player_location, std::vector <Enemy> store_enemy_npc){
+void check_in_range_npc(std::pair <int, int>& player_location, std::vector <Enemy>& store_enemy_npc){
     //load positions adjacent to player
     std::vector <std::pair<int, int>> check_coords = {
         {player_location.first + 1, player_location.second}, {player_location.first - 1, player_location.second}, {player_location.first, player_location.second + 1}, {player_location.first, player_location.second - 1},
@@ -62,9 +64,9 @@ void check_in_range_npc(std::pair <int, int> player_location, std::vector <Enemy
         if(dot_map[coord.first][coord.second] != '.' && dot_map[coord.first][coord.second] != 'x'){
             char in_range = dot_map[coord.first][coord.second];
             //add enemies to in range
-            for(int i=0; i < store_enemy_npc.size(); i++){
-                if(store_enemy_npc[i].npc_position == coord){
-                    in_range_enemies.push_back(store_enemy_npc[i]);
+            for(const auto& enemy : store_enemy_npc){
+                if(enemy.npc_position == coord){
+                    in_range_enemies.push_back(enemy);
                 }
             }
         }
@@ -72,7 +74,7 @@ void check_in_range_npc(std::pair <int, int> player_location, std::vector <Enemy
 }
 
 /*printer function to show the map*/
-void print_map(std::vector <std::vector<char>> dot_map, std::pair <int, int> player_location, Player_Character& player){
+void print_map(std::vector <std::vector<char>>& dot_map, std::pair <int, int>& player_location, Player_Character& player){
     int min = player_location.first - 10;
     int max = player_location.first + 10;
     if(min < 0){
@@ -162,12 +164,14 @@ std::pair <int, int> handle_user_move(std::string command, std::pair <int, int> 
     return player_location;
 }
 
-int check_npc_is_in_range(int index_to_check){
-    int check_flag = 0;
-    if(index_to_check <= in_range_enemies.size() && in_range_enemies.size() != 0){
-        check_flag = 1;
+/*Function takes integer arguemnt of desired index to check. Verifies index exists with optional. If it exists, returns the integer, other wise a null optional object*/
+std::optional<int> check_npc_is_in_range(int index_to_check){
+    //int check_flag = 0;
+    //if(index_to_check <= in_range_enemies.size() && in_range_enemies.size() != 0){
+    if(index_to_check < in_range_enemies.size()){
+        return index_to_check;
     }
-    return check_flag;
+    return std::nullopt;
 }
 
 /*Function handles player self healing and returns a pair of int and string indicating healing amount and ability name*/
@@ -267,17 +271,20 @@ std::pair <std::pair<int, std::string>, std::pair<int, std::string>> handle_play
 
 /*function searches through enemy vector and finds a matching id. Awards npc experience to player and removes npc from map and npc vector*/
 void handle_npc_kill(Player_Character& player, int enemy_npc_id){
-    for(int i =0; i < Enemy::enemy_npc_vector.size(); i++){
-        if(Enemy::enemy_npc_vector[i].get_id() == enemy_npc_id){
-            int level_difference = Enemy::enemy_npc_vector[i].get_level() - player.player_level;
+
+    //search vector for enemy npc id
+    auto found_enemy = std::find_if(Enemy::enemy_npc_vector.begin(), Enemy::enemy_npc_vector.end(), 
+        [enemy_npc_id](const Enemy& enemy){ return enemy.get_id() == enemy_npc_id;}); //lambda to capture npc id and compare to current enemy id, return true if match
+
+        //if found enemy did not reach end of vector
+        if(found_enemy != Enemy::enemy_npc_vector.end()){
+            //update player xp and remove enemy from vector
+            int level_difference = found_enemy->get_level() - player.player_level;
             int exp_gain =  25 + (level_difference * 5);
             player.experience_points += exp_gain;
-
-            dot_map[Enemy::enemy_npc_vector[i].npc_position.first][Enemy::enemy_npc_vector[i].npc_position.second] = '.';
-            Enemy::enemy_npc_vector.erase(Enemy::enemy_npc_vector.begin() + i);
-            break;
+            dot_map[found_enemy->npc_position.first][found_enemy->npc_position.second] = '.';
+            Enemy::enemy_npc_vector.erase(found_enemy);
         }
-    }
 }
 
 /*function checks players current xp points. Levels player up if xp requirements are met. Rolls over leftover xp toward next level*/
@@ -324,9 +331,9 @@ int main(){
             if(isdigit(char_command)){ //targeting command
                 int in_range_index = char_command - '0';
                 
-                int check_target_in_range = check_npc_is_in_range(in_range_index);
+                auto check_target_in_range = check_npc_is_in_range(in_range_index);
                 //check in range
-                if(check_target_in_range == 1){
+                if(check_target_in_range){
                     //get npc disposition & id
                     int target_dispostion = in_range_enemies[in_range_index].disposition;
                     int target_id = in_range_enemies[in_range_index].npc_id;
