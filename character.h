@@ -121,10 +121,10 @@ Player_Character* create_player(){
         std::cout << MAGENTA << "Paladin <p>" << RESET << std::endl;
         std::cout << std::endl;
 
-        char class_char = '0';
-        std::cin >> class_char;
+        char class_character = '0';
+        std::cin >> class_character;
 
-        switch(class_char){
+        switch(class_character){
             case 'w':
             case 'W':
                 player = new Warrior();
@@ -144,7 +144,7 @@ Player_Character* create_player(){
 
         }
 
-        if(class_char == 'H' || class_char == 'R' || class_char == 'M' || class_char == 'P' || class_char == 'W'){
+        if(class_character == 'H' || class_character == 'R' || class_character == 'M' || class_character == 'P' || class_character == 'W'){
             clear_screen();
             break;
         }

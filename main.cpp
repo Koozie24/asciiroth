@@ -123,9 +123,9 @@ void print_map(std::vector <std::vector<char>>& dot_map, std::pair <int, int>& p
 
 /*function handles users' movement command. Updates the map if move is legal. returns pair of ints denoting player location*/
 std::pair <int, int> handle_user_move(std::string command, std::pair <int, int> player_location){
-    int cmd_length = command.size();
+    int command_length = command.size();
 
-    if(cmd_length == 1){
+    if(command_length == 1){
         switch(command[0]){
             case 'w':
             case 'W':
@@ -193,14 +193,14 @@ std::pair <int, std::string> player_heal(Player_Character& player){
 
 /*Function takes index of in range npc, refernce to pointer to player char object, a pair of pairs of ints and strings which contain the combat data from the turn that just occured. Function prints out the 
 damage and/or healing done to or by npc and player. */
-void display_combat_interaction(int in_range_index, Player_Character& player, std::pair <std::pair<int, std::string>, std::pair<int, std::string>> previous = {{-1, "null"}, {-1, "null"}}, int turn = 1){
+void display_combat_interaction(int in_range_index, Player_Character& player, std::pair <std::pair<int, std::string>, std::pair<int, std::string>> previous = {{-1, "null"}, {-1, "null"}}, int current_turn = 1){
     clear_screen();
     int count = 0;
     std::string enemy_name = in_range_enemies[in_range_index].get_name();
     for(char c : enemy_name){
         count++;
     }
-    if(turn == 0){
+    if(current_turn == 0){
         std::cout << BOLD << BRIGHT_RED << "You are in combat! Win or die." << RESET << std::endl;
         std::cout << "------------------------------------------------" << std::endl;
         std::cout << "Target: Level " << in_range_enemies[in_range_index].level << " " << in_range_enemies[in_range_index].get_name() <<  std::string(count, '\0') << std::endl;
@@ -323,10 +323,10 @@ int main(){
     
     for(;;){ //start game loop
         command = get_input();
-        int cmd_length = command.size();
+        int command_length = command.size();
 
         //parse input command
-        if(cmd_length == 1){
+        if(command_length == 1){
             char char_command = command[0];
             if(isdigit(char_command)){ //targeting command
                 int in_range_index = char_command - '0';
@@ -342,36 +342,36 @@ int main(){
                         case(0):
                         //enemy
                         case(1):
-                            int in_combat = 1;
-                            int turn = 0;
+                            int in_combat_flag = 1;
+                            int current_turn = 0;
                             std::pair <std::pair<int, std::string>, std::pair<int, std::string>> previous_turn_results;
 
                             for(;;){
                                 command = "";
                                 //first turn before combat has begun
-                                if(turn == 0){
+                                if(current_turn == 0){
                                     std::pair <std::pair<int, std::string>, std::pair<int, std::string>> previous = {{-1, "null"}, {-1, "null"}};
-                                    display_combat_interaction(in_range_index, *player, previous, turn); //display intial combat screen
+                                    display_combat_interaction(in_range_index, *player, previous, current_turn); //display intial combat screen
                                     command = get_input(); //get first input 
-                                    turn++;
+                                    current_turn++;
                                     previous_turn_results = handle_player_attack_inputs(command, *player, in_range_index); //calculate combat effects
                                     display_combat_interaction(in_range_index, *player, previous_turn_results); //update screen after first turn
                                 }
                                 else{ //continue combat loop
                                     command = get_input();
                                     previous_turn_results = handle_player_attack_inputs(command, *player, in_range_index);
-                                    turn++;
+                                    current_turn++;
                                     display_combat_interaction(in_range_index, *player, previous_turn_results);
                                 }   
                                 
                                 //check for a kill (previous.first = player/previous.second = npc)
                                 //in_combat = previous_turn_results.first == -2 ? 0 : 1;
                                 if(previous_turn_results.first.first == -2 || previous_turn_results.second.first == -2){
-                                    in_combat = 0;
+                                    in_combat_flag = 0;
                                 }
 
                                 //handle player/npc health <= 0
-                                if(in_combat == 0){
+                                if(in_combat_flag == 0){
                                     if(in_range_enemies[in_range_index].hit_points <= 0){ //npc kill
                                         handle_npc_kill(*player, target_id);
                                     }
@@ -397,12 +397,12 @@ int main(){
                 game_active = 0;
             }
             else{ //handle movement and display in range npc's
-                std::pair temp_loc = player->player_location;
+                std::pair temporary_player_location = player->player_location;
                 player->player_location = handle_user_move(command, player->player_location);
                 clear_screen();
 
                 //check if player has moved to trigger range check
-                if(temp_loc.first != player->player_location.first || temp_loc.second != player->player_location.second){
+                if(temporary_player_location.first != player->player_location.first || temporary_player_location.second != player->player_location.second){
                     check_in_range_npc(player->player_location, Enemy::enemy_npc_vector);
                 }
 
